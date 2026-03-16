@@ -2,15 +2,22 @@ import type { AnalysisRequest, AnalysisResponse, AuthUser, AuthVerifyResponse, J
 
 export function getBaseUrl(): string {
     const envUrl = (import.meta.env.VITE_API_URL as string) || ''
-    if (envUrl) return envUrl.replace(/\/$/, '')
-    if (typeof window !== 'undefined' && window.location?.origin) {
-        return window.location.origin.replace(/\/$/, '')
+    if (envUrl) {
+        const url = envUrl.replace(/\/$/, '')
+        console.log('[API Debug] Using env URL:', url)
+        return url
     }
-    return 'http://localhost:8000'
+    if (typeof window !== 'undefined' && window.location?.origin) {
+        const url = window.location.origin.replace(/\/$/, '')
+        console.log('[API Debug] Using window origin:', url)
+        return url
+    }
+    console.log('[API Debug] Falling back to default:', 'http://localhost:22222')
+    return 'http://localhost:22222'
 }
 
 // Kept for backward compatibility
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:22222'
 
 function getAuthToken(): string | null {
     try {

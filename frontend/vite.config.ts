@@ -49,24 +49,24 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:22222',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/v1': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:22222',
         changeOrigin: true,
       },
       '/healthz': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:22222',
         changeOrigin: true,
       },
       '/openapi.json': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:22222',
         changeOrigin: true,
       },
       '/docs': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:22222',
         changeOrigin: true,
       },
     },
