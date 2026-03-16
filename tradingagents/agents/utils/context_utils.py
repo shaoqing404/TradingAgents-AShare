@@ -93,6 +93,14 @@ def normalize_user_context(raw: Mapping[str, Any] | None = None) -> dict[str, An
     if not raw:
         return context
 
+    numeric_keys = {
+        "cash_available",
+        "current_position",
+        "current_position_pct",
+        "average_cost",
+        "max_loss_pct",
+    }
+
     for key in USER_CONTEXT_KEYS:
         value = raw.get(key)
         if value is None:
@@ -101,7 +109,15 @@ def normalize_user_context(raw: Mapping[str, Any] | None = None) -> dict[str, An
             value = value.strip()
             if not value:
                 continue
+        if key in numeric_keys:
+            coerced = _coerce_numeric_user_value(value)
+            if coerced is None:
+                continue
+            context[key] = coerced
+            continue
         if key == "constraints":
+            if isinstance(value, str):
+                value = re.split(r"[;,，；\n]+", value)
             constraints = [str(item).strip() for item in value or [] if str(item).strip()]
             if constraints:
                 context[key] = constraints
@@ -109,6 +125,38 @@ def normalize_user_context(raw: Mapping[str, Any] | None = None) -> dict[str, An
         context[key] = value
 
     return context
+
+
+def _coerce_numeric_user_value(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    multiplier = 1.0
+    if "%" not in text:
+        if "亿" in text:
+            multiplier = 100000000.0
+        elif "万" in text:
+            multiplier = 10000.0
+    normalized = (
+        text.replace(",", "")
+        .replace("，", "")
+        .replace("元", "")
+        .replace("股", "")
+        .replace("万", "")
+        .replace("亿", "")
+        .replace("％", "%")
+    )
+    match = re.search(r"-?\d+(?:\.\d+)?", normalized)
+    if not match:
+        return None
+    try:
+        return float(match.group(0)) * multiplier
+    except ValueError:
+        return None
 
 
 def summarize_instrument_context(context: Mapping[str, Any] | None) -> str:

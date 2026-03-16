@@ -1,6 +1,7 @@
 # TradingAgents/graph/conditional_logic.py
 
 from tradingagents.agents.utils.agent_states import AgentState
+from tradingagents.agents.utils.debate_utils import safe_int
 
 
 class ConditionalLogic:
@@ -87,7 +88,7 @@ class ConditionalLogic:
         feedback = state.get("risk_feedback_state", {})
         if (
             feedback.get("revision_required")
-            and int(feedback.get("retry_count", 0) or 0) <= int(feedback.get("max_retries", 1) or 1)
+            and safe_int(feedback.get("retry_count", 0), 0) <= safe_int(feedback.get("max_retries", 1), 1)
         ):
             return "Trader"
         return "END"

@@ -301,6 +301,7 @@ class TradingAgentsGraph:
                 "horizons": ["short", "medium"],
                 "focus_areas": [],
                 "specific_questions": [],
+                "user_context": {},
             }
 
         # Pre-collect data once; analysts will read from cache

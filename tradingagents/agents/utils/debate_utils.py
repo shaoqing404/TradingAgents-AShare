@@ -21,6 +21,56 @@ def strip_tagged_json(text: str, tag: str) -> str:
     return re.sub(pattern, "", text, flags=re.DOTALL).strip()
 
 
+def safe_int(value: Any, default: int) -> int:
+    try:
+        if value is None or value == "":
+            return default
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return int(float(str(value).strip()))
+        except (TypeError, ValueError):
+            return default
+
+
+def extract_risk_judge_result(text: str) -> dict[str, Any]:
+    judge_payload = extract_tagged_json(text, "RISK_JUDGE")
+    cleaned_response = strip_tagged_json(text, "RISK_JUDGE")
+    parse_failed = not bool(judge_payload)
+
+    verdict = str(judge_payload.get("verdict", "")).strip().lower()
+    if verdict not in {"pass", "revise", "reject"}:
+        parse_failed = True
+        verdict = "reject"
+
+    hard_constraints = [str(item).strip() for item in (judge_payload.get("hard_constraints") or []) if str(item).strip()]
+    soft_constraints = [str(item).strip() for item in (judge_payload.get("soft_constraints") or []) if str(item).strip()]
+    execution_preconditions = [
+        str(item).strip() for item in (judge_payload.get("execution_preconditions") or []) if str(item).strip()
+    ]
+    de_risk_triggers = [str(item).strip() for item in (judge_payload.get("de_risk_triggers") or []) if str(item).strip()]
+    revision_reason = str(judge_payload.get("revision_reason", "")).strip()
+
+    if parse_failed:
+        revision_reason = revision_reason or "风控裁决机读块解析失败，按拒绝处理"
+        if cleaned_response:
+            cleaned_response = f"{cleaned_response}\n\n[系统说明] 风控裁决机读块解析失败，已按拒绝处理。"
+        else:
+            cleaned_response = "风控裁决机读块解析失败，已按拒绝处理。"
+
+    return {
+        "judge_payload": judge_payload,
+        "cleaned_response": cleaned_response,
+        "verdict": verdict,
+        "hard_constraints": hard_constraints,
+        "soft_constraints": soft_constraints,
+        "execution_preconditions": execution_preconditions,
+        "de_risk_triggers": de_risk_triggers,
+        "revision_reason": revision_reason,
+        "parse_failed": parse_failed,
+    }
+
+
 def format_claims_for_prompt(
     claims: Iterable[Mapping[str, Any]] | None,
     focus_claim_ids: Iterable[str] | None = None,

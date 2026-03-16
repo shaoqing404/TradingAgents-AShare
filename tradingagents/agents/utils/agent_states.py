@@ -11,6 +11,7 @@ class UserIntent(TypedDict, total=False):
     horizons: List[str]
     focus_areas: List[str]
     specific_questions: List[str]
+    user_context: "UserContext"
 
 
 class TraceItem(TypedDict, total=False):
@@ -60,6 +61,8 @@ class WorkflowContext(TypedDict):
     context_version: Annotated[str, "Workflow context version"]
     request_source: Annotated[str, "Request origin such as api or chat"]
     selected_analysts: Annotated[list[str], "Requested analyst roster"]
+
+
 class InvestDebateState(TypedDict):
     bull_history: Annotated[str, "Bullish conversation history"]
     bear_history: Annotated[str, "Bearish conversation history"]

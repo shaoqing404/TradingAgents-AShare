@@ -212,9 +212,20 @@ Fields:
 - horizons: list of time horizons, options: "short" (1-2 weeks, technicals-driven), "medium" (1-3 months, fundamentals-driven), default ["short", "medium"]
 - focus_areas: list of analysis dimensions the user specifically cares about (empty array if none)
 - specific_questions: list of specific questions from the user (empty array if none)
+- user_context: extracted account/profile context object. Return {} if not mentioned. It may include:
+  - objective: build / add / reduce / stop_loss / observe / manage_existing
+  - risk_profile: conservative / balanced / aggressive
+  - investment_horizon: short / swing / medium / long
+  - cash_available: number
+  - current_position: number
+  - current_position_pct: number without %
+  - average_cost: number
+  - max_loss_pct: number without %
+  - constraints: string array
+  - user_notes: free text only for important residual context
 
 Example output:
-{"ticker": "600519", "horizons": ["short", "medium"], "focus_areas": ["volume-price", "smart money"], "specific_questions": ["Can it reach +30% target?"]}
+{"ticker": "600519", "horizons": ["short", "medium"], "focus_areas": ["volume-price", "smart money"], "specific_questions": ["Can it reach +30% target?"], "user_context": {"current_position_pct": 80, "average_cost": 1850, "objective": "manage_existing"}}
 
 Output JSON only, no prefix or suffix text.""",
 

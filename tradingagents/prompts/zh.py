@@ -369,9 +369,20 @@ direction 只可填：看多 / 看空 / 中性 / 谨慎""",
 - horizons: 时间维度列表，可选值 "short"（1-2周技术面主导）、"medium"（1-3月基本面主导），默认 ["short", "medium"]
 - focus_areas: 用户特别关注的分析维度列表（空数组表示无特殊关注）
 - specific_questions: 用户的具体问题列表（空数组表示无具体问题）
+- user_context: 从用户自然语言中抽取的账户与约束信息对象。若未提及，返回 {}。可包含：
+  - objective: 建仓 / 加仓 / 减仓 / 止损 / 观察 / 持有处理
+  - risk_profile: 保守 / 平衡 / 激进
+  - investment_horizon: 短线 / 波段 / 中线 / 长期
+  - cash_available: 数字
+  - current_position: 数字
+  - current_position_pct: 数字，百分比不要带 %
+  - average_cost: 数字
+  - max_loss_pct: 数字，百分比不要带 %
+  - constraints: 字符串数组
+  - user_notes: 仅当用户补充了重要但无法结构化归类的信息时填写
 
 输出格式示例：
-{"ticker": "600519", "horizons": ["short", "medium"], "focus_areas": ["量价关系", "主力资金"], "specific_questions": ["短期能否到+30%目标位"]}
+{"ticker": "600519", "horizons": ["short", "medium"], "focus_areas": ["量价关系", "主力资金"], "specific_questions": ["短期能否到+30%目标位"], "user_context": {"current_position_pct": 80, "average_cost": 1850, "objective": "持有处理"}}
 
 注意：只输出 JSON，不要有任何前缀或后缀文字。""",
 

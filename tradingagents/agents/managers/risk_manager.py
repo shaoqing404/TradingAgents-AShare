@@ -4,10 +4,10 @@ from tradingagents.dataflows.config import get_config
 from tradingagents.prompts import get_prompt
 from tradingagents.agents.utils.context_utils import build_agent_context_view
 from tradingagents.agents.utils.debate_utils import (
-    extract_tagged_json,
+    extract_risk_judge_result,
     format_claim_subset_for_prompt,
     format_claims_for_prompt,
-    strip_tagged_json,
+    safe_int,
 )
 
 
@@ -47,14 +47,14 @@ def create_risk_manager(llm, memory):
         )
 
         response = llm.invoke(prompt)
-        judge_payload = extract_tagged_json(response.content, "RISK_JUDGE")
-        cleaned_response = strip_tagged_json(response.content, "RISK_JUDGE")
-        verdict = str(judge_payload.get("verdict", "pass")).strip().lower() or "pass"
-        hard_constraints = [str(item).strip() for item in (judge_payload.get("hard_constraints") or []) if str(item).strip()]
-        soft_constraints = [str(item).strip() for item in (judge_payload.get("soft_constraints") or []) if str(item).strip()]
-        execution_preconditions = [str(item).strip() for item in (judge_payload.get("execution_preconditions") or []) if str(item).strip()]
-        de_risk_triggers = [str(item).strip() for item in (judge_payload.get("de_risk_triggers") or []) if str(item).strip()]
-        revision_reason = str(judge_payload.get("revision_reason", "")).strip()
+        judge_result = extract_risk_judge_result(response.content)
+        cleaned_response = judge_result["cleaned_response"]
+        verdict = judge_result["verdict"]
+        hard_constraints = judge_result["hard_constraints"]
+        soft_constraints = judge_result["soft_constraints"]
+        execution_preconditions = judge_result["execution_preconditions"]
+        de_risk_triggers = judge_result["de_risk_triggers"]
+        revision_reason = judge_result["revision_reason"]
 
         new_risk_debate_state = {
             "judge_decision": cleaned_response,
@@ -77,8 +77,8 @@ def create_risk_manager(llm, memory):
             "claim_counter": risk_debate_state.get("claim_counter", 0),
         }
         new_risk_feedback_state = {
-            "retry_count": int(risk_feedback_state.get("retry_count", 0) or 0) + (1 if verdict == "revise" else 0),
-            "max_retries": int(risk_feedback_state.get("max_retries", 1) or 1),
+            "retry_count": safe_int(risk_feedback_state.get("retry_count", 0), 0) + (1 if verdict == "revise" else 0),
+            "max_retries": safe_int(risk_feedback_state.get("max_retries", 1), 1),
             "revision_required": verdict == "revise",
             "latest_risk_verdict": verdict,
             "hard_constraints": hard_constraints,
