@@ -24,7 +24,7 @@
 
 ### 2.1 全局状态过扁平
 
-当前 [agent_states.py](/mnt/e/element_workspace/TradingAgents-AShare/tradingagents/agents/utils/agent_states.py) 中，主状态只显式包含：
+当前 [tradingagents/agents/utils/agent_states.py](../tradingagents/agents/utils/agent_states.py) 中，主状态只显式包含：
 
 - `company_of_interest`
 - `trade_date`
@@ -40,7 +40,7 @@
 
 ### 2.2 入口只提取股票与日期
 
-当前 [api/main.py](/mnt/e/element_workspace/TradingAgents-AShare/api/main.py) 的自然语言入口 `_ai_extract_symbol_and_date()` 只抽取：
+当前 [api/main.py](../api/main.py) 的自然语言入口 `_ai_extract_symbol_and_date()` 只抽取：
 
 - `stock_name`
 - `date`
@@ -56,7 +56,7 @@
 
 ### 2.3 辩论是“轮换”，不是“对抗”
 
-当前 [conditional_logic.py](/mnt/e/element_workspace/TradingAgents-AShare/tradingagents/graph/conditional_logic.py) 的研究辩论路由依赖：
+当前 [tradingagents/graph/conditional_logic.py](../tradingagents/graph/conditional_logic.py) 的研究辩论路由依赖：
 
 - `current_response.startswith("Bull")`
 
@@ -82,7 +82,7 @@
 
 ### 2.5 Game Theory Manager 名称与职责不匹配
 
-当前 [game_theory_manager.py](/mnt/e/element_workspace/TradingAgents-AShare/tradingagents/agents/managers/game_theory_manager.py) 实际上只是读取：
+当前 [tradingagents/agents/managers/game_theory_manager.py](../tradingagents/agents/managers/game_theory_manager.py) 实际上只是读取：
 
 - `smart_money_report`
 - `sentiment_report`
@@ -97,7 +97,7 @@
 
 ### 2.6 风控法官尚未形成闭环
 
-当前 `Risk Judge -> END` 是固定边，[setup.py](/mnt/e/element_workspace/TradingAgents-AShare/tradingagents/graph/setup.py) 中没有回退路径。
+当前 `Risk Judge -> END` 是固定边，[tradingagents/graph/setup.py](../tradingagents/graph/setup.py) 中没有回退路径。
 
 此外，Risk Judge 当前读取的是 `investment_plan` 而非 Trader 最终产出的 `trader_investment_plan`，这会直接削弱风控裁决的真实性。
 
