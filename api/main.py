@@ -76,10 +76,13 @@ def _cors_allow_origins() -> list[str]:
     default_origins = [
         "http://127.0.0.1:5174",
         "http://localhost:5174",
+        "http://0.0.0.0:5174",
         "http://127.0.0.1:5175",
         "http://localhost:5175",
+        "http://0.0.0.0:5175",
         "http://127.0.0.1:5173",
         "http://localhost:5173",
+        "http://0.0.0.0:5173",
     ]
     if not raw:
         return default_origins
@@ -88,7 +91,10 @@ def _cors_allow_origins() -> list[str]:
 
 def _cors_allow_origin_regex() -> str | None:
     raw = os.getenv("CORS_ALLOW_ORIGIN_REGEX", "").strip()
-    return raw or None
+    if raw:
+        return raw
+    # Allow local/private-network dev origins without forcing users to hardcode a host.
+    return r"^https?://(?:0\.0\.0\.0|127\.0\.0\.1|localhost|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?::\d+)?$"
 
 
 def _report_version_stats() -> None:
